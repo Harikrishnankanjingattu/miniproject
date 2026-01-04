@@ -12,9 +12,11 @@ const LandingPage = ({ onGetStarted, onLogin }) => {
                     </div>
                     <span className="logo-text">AutoConnect</span>
                 </div>
-                <button className="menu-btn">
-                    <Menu size={24} />
-                </button>
+
+                <div className="nav-right">
+                    <button className="login-nav-link" onClick={onLogin}>Log In</button>
+                    <button className="get-started-nav" onClick={onGetStarted}>Get Started</button>
+                </div>
             </header>
 
             <main className="landing-main">
