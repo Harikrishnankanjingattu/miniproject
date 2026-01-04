@@ -1,0 +1,124 @@
+* {
+    box-sizing: border-box;
+}
+
+.subadmin-dashboard {
+    display: flex;
+    min-height: 100vh;
+    background: #f8fafc;
+    position: relative;
+}
+
+.main-content {
+    flex: 1;
+    margin-left: 260px;
+    transition: margin-left 0.3s ease;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* When sidebar is collapsed */
+.sidebar.collapsed+.main-content {
+    margin-left: 70px;
+}
+
+.placeholder-section {
+    padding: 2rem;
+    max-width: 1400px;
+}
+
+.placeholder-section h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 1rem 0;
+}
+
+.placeholder-section p {
+    color: #64748b;
+    font-size: 1rem;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Mobile Menu Overlay */
+.mobile-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.mobile-overlay.active {
+    display: block;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+    }
+
+    .sidebar.collapsed+.main-content {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .subadmin-dashboard {
+        flex-direction: column;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        padding: 0.5rem;
+    }
+
+    .sidebar {
+        position: fixed;
+        left: -260px;
+        z-index: 1000;
+        transition: left 0.3s ease;
+    }
+
+    .sidebar.mobile-open {
+        left: 0;
+    }
+
+    .sidebar.collapsed {
+        left: -70px;
+    }
+
+    .sidebar.collapsed.mobile-open {
+        left: 0;
+        width: 260px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 0.25rem;
+    }
+}
