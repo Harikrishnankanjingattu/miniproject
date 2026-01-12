@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Menu, ArrowRight, Bot } from 'lucide-react';
 import './LandingPage.css';
