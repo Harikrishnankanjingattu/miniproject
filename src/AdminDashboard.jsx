@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth } from './firebase';
-import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
-import { LogOut, Search, Users, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { collection, getDocs, doc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
+import { LogOut, Search, Users, ShieldAlert, ShieldCheck, Settings2, ToggleLeft, ToggleRight } from 'lucide-react';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -9,10 +9,44 @@ const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
+    const [moduleSettings, setModuleSettings] = useState({
+        leadsEnabled: true,
+        campaignsEnabled: true
+    });
 
     useEffect(() => {
         fetchUsers();
+        fetchModuleSettings();
     }, []);
+
+    const fetchModuleSettings = async () => {
+        try {
+            const docRef = doc(db, 'settings', 'modules');
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                setModuleSettings(docSnap.data());
+            } else {
+                // Initialize default settings if not exists
+                await setDoc(docRef, {
+                    leadsEnabled: true,
+                    campaignsEnabled: true
+                });
+            }
+        } catch (error) {
+            console.error("Error fetching module settings:", error);
+        }
+    };
+
+    const toggleModule = async (module) => {
+        const newValue = !moduleSettings[module];
+        const newSettings = { ...moduleSettings, [module]: newValue };
+        try {
+            await setDoc(doc(db, 'settings', 'modules'), newSettings);
+            setModuleSettings(newSettings);
+        } catch (error) {
+            alert("Error updating module settings: " + error.message);
+        }
+    };
 
     const fetchUsers = async () => {
         try {
@@ -38,6 +72,18 @@ const AdminDashboard = () => {
             setUsers(users.map(u => u.id === userId ? { ...u, status: newStatus } : u));
         } catch (error) {
             alert("Error updating status: " + error.message);
+        }
+    };
+
+    const toggleUserModule = async (userId, module, currentVal) => {
+        const newVal = currentVal === false ? true : false;
+        try {
+            await updateDoc(doc(db, 'users', userId), {
+                [module]: newVal
+            });
+            setUsers(users.map(u => u.id === userId ? { ...u, [module]: newVal } : u));
+        } catch (error) {
+            alert("Error updating user module: " + error.message);
         }
     };
 
@@ -104,6 +150,42 @@ const AdminDashboard = () => {
                 </div>
             </div>
 
+            <section className="settings-section">
+                <div className="section-header">
+                    <Settings2 size={24} color="#1e3a8a" />
+                    <h2>Global Module Control</h2>
+                </div>
+                <div className="settings-grid">
+                    <div className="settings-card">
+                        <div className="settings-info">
+                            <h3>Lead Generation Module</h3>
+                            <p>Enable or disable lead generation features for all users</p>
+                        </div>
+                        <button
+                            className={`toggle-btn ${moduleSettings.leadsEnabled ? 'on' : 'off'}`}
+                            onClick={() => toggleModule('leadsEnabled')}
+                        >
+                            {moduleSettings.leadsEnabled ? <ToggleRight size={32} /> : <ToggleLeft size={32} />}
+                            <span>{moduleSettings.leadsEnabled ? 'ENABLED' : 'DISABLED'}</span>
+                        </button>
+                    </div>
+
+                    <div className="settings-card">
+                        <div className="settings-info">
+                            <h3>Campaign Management</h3>
+                            <p>Enable or disable marketing campaigns for all users</p>
+                        </div>
+                        <button
+                            className={`toggle-btn ${moduleSettings.campaignsEnabled ? 'on' : 'off'}`}
+                            onClick={() => toggleModule('campaignsEnabled')}
+                        >
+                            {moduleSettings.campaignsEnabled ? <ToggleRight size={32} /> : <ToggleLeft size={32} />}
+                            <span>{moduleSettings.campaignsEnabled ? 'ENABLED' : 'DISABLED'}</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
             <section className="table-section">
                 <div className="table-controls">
                     <h2>User Activity Center</h2>
@@ -136,6 +218,8 @@ const AdminDashboard = () => {
                             <tr>
                                 <th>Entity / Company</th>
                                 <th>Credits</th>
+                                <th>Lead Gen</th>
+                                <th>Campaign</th>
                                 <th>Session Timer</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -153,6 +237,26 @@ const AdminDashboard = () => {
                                     </td>
                                     <td>
                                         <span className="credit-value">{user.credits ?? '0'}</span>
+                                    </td>
+                                    <td>
+                                        {user.role !== 'admin' && (
+                                            <button
+                                                className={`module-toggle-pill ${user.leadsEnabled !== false ? 'enabled' : 'disabled'}`}
+                                                onClick={() => toggleUserModule(user.id, 'leadsEnabled', user.leadsEnabled)}
+                                            >
+                                                {user.leadsEnabled !== false ? 'ON' : 'OFF'}
+                                            </button>
+                                        )}
+                                    </td>
+                                    <td>
+                                        {user.role !== 'admin' && (
+                                            <button
+                                                className={`module-toggle-pill ${user.campaignsEnabled !== false ? 'enabled' : 'disabled'}`}
+                                                onClick={() => toggleUserModule(user.id, 'campaignsEnabled', user.campaignsEnabled)}
+                                            >
+                                                {user.campaignsEnabled !== false ? 'ON' : 'OFF'}
+                                            </button>
+                                        )}
                                     </td>
                                     <td>
                                         {user.role !== 'admin' && (

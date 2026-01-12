@@ -39,7 +39,7 @@
     background: #f8fafc;
     color: #1e40af;
     border: 1px solid #e2e8f0;
-    borderRadius: 12px;
+    border-radius: 12px;
     cursor: pointer;
     font-weight: 700;
     font-size: 0.9rem;
@@ -313,4 +313,127 @@ td {
         width: 100%;
         justify-content: center;
     }
+}
+
+.module-toggle-pill {
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    min-width: 50px;
+    text-align: center;
+}
+
+.module-toggle-pill.enabled {
+    background: #ecfdf5;
+    color: #059669;
+    border-color: #10b981;
+}
+
+.module-toggle-pill.disabled {
+    background: #fff1f2;
+    color: #e11d48;
+    border-color: #fda4af;
+}
+
+.module-toggle-pill:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Global Module Control Styles */
+.settings-section {
+    background: white;
+    border: 1px solid #f1f5f9;
+    border-radius: 24px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.section-header h2 {
+    margin: 0;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.25rem;
+    color: #1e3a8a;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.settings-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: #f8fafc;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s;
+}
+
+.settings-card:hover {
+    border-color: #2563eb;
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.05);
+}
+
+.settings-info h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+    color: #1e293b;
+    font-weight: 700;
+}
+
+.settings-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.toggle-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.2s;
+    min-width: 80px;
+}
+
+.toggle-btn.on {
+    color: #059669;
+}
+
+.toggle-btn.off {
+    color: #94a3b8;
+}
+
+.toggle-btn span {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+}
+
+.toggle-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
 }

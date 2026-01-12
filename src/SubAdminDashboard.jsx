@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { signOut } from 'firebase/auth';
 import { Menu, X } from 'lucide-react';
-import { auth } from './firebase';
+import { auth, db } from './firebase';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import LeadGeneration from './components/LeadGeneration';
@@ -13,6 +14,38 @@ function SubAdminDashboard({ user, userProfile }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [timeLeft, setTimeLeft] = useState(null);
+    const [moduleSettings, setModuleSettings] = useState({
+        leadsEnabled: true,
+        campaignsEnabled: true
+    });
+
+    const combinedSettings = {
+        leadsEnabled: moduleSettings.leadsEnabled && (userProfile?.leadsEnabled !== false),
+        campaignsEnabled: moduleSettings.campaignsEnabled && (userProfile?.campaignsEnabled !== false)
+    };
+
+    useEffect(() => {
+        // Listen to global module settings
+        const unsubscribe = onSnapshot(doc(db, 'settings', 'modules'), (doc) => {
+            if (doc.exists()) {
+                const settings = doc.data();
+                setModuleSettings(settings);
+
+                // If current section is disabled by global OR user setting, switch to dashboard
+                const isLeadsOff = !settings.leadsEnabled || userProfile?.leadsEnabled === false;
+                const isCampaignsOff = !settings.campaignsEnabled || userProfile?.campaignsEnabled === false;
+
+                if (isLeadsOff && activeSection === 'leads') {
+                    setActiveSection('dashboard');
+                }
+                if (isCampaignsOff && activeSection === 'campaigns') {
+                    setActiveSection('dashboard');
+                }
+            }
+        });
+
+        return () => unsubscribe();
+    }, [activeSection, userProfile]);
 
     useEffect(() => {
         const checkMobile = () => {
@@ -82,9 +115,13 @@ function SubAdminDashboard({ user, userProfile }) {
             case 'dashboard':
                 return <Dashboard user={user} userProfile={userProfile} />;
             case 'leads':
-                return <LeadGeneration user={user} userProfile={userProfile} />;
+                return combinedSettings.leadsEnabled ?
+                    <LeadGeneration user={user} userProfile={userProfile} /> :
+                    <Dashboard user={user} userProfile={userProfile} />;
             case 'campaigns':
-                return <CampaignManager user={user} userProfile={userProfile} />;
+                return combinedSettings.campaignsEnabled ?
+                    <CampaignManager user={user} userProfile={userProfile} /> :
+                    <Dashboard user={user} userProfile={userProfile} />;
             default:
                 return <Dashboard user={user} userProfile={userProfile} />;
         }
@@ -157,6 +194,7 @@ function SubAdminDashboard({ user, userProfile }) {
                 onLogout={handleLogout}
                 isMobileOpen={isMobileMenuOpen}
                 isMobile={isMobile}
+                moduleSettings={combinedSettings}
             />
             <main className="main-content" style={{ paddingTop: isMobile ? '4rem' : '0' }}>
                 {renderContent()}

@@ -9,13 +9,13 @@ import {
 } from 'lucide-react';
 import '../styles/Sidebar.css';
 
-const Sidebar = ({ activeSection, onSectionChange, user, onLogout, isMobileOpen, isMobile }) => {
+const Sidebar = ({ activeSection, onSectionChange, user, onLogout, isMobileOpen, isMobile, moduleSettings }) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     const menuItems = [
         { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-        { id: 'leads', icon: UserPlus, label: 'Lead Generation' },
-        { id: 'campaigns', icon: Megaphone, label: 'Campaigns' }
+        ...(moduleSettings?.leadsEnabled !== false ? [{ id: 'leads', icon: UserPlus, label: 'Lead Generation' }] : []),
+        ...(moduleSettings?.campaignsEnabled !== false ? [{ id: 'campaigns', icon: Megaphone, label: 'Campaigns' }] : [])
     ];
 
     // Extract company name from email (before @) or use full email
