@@ -21,7 +21,7 @@ const LandingPage = ({ onGetStarted, onLogin }) => {
       {/* HERO */}
       <main style={styles.heroWrap}>
         <div style={styles.heroText}>
-          <div style={styles.badge}>⚡ AI POWERED</div>
+          <div style={styles.badge}>⚡ ᴬᴵ ᴾᴼᵂᴱᴿᴱᴰ</div>
 
           <h1 style={styles.title}>
             Automate customer calls<br />
