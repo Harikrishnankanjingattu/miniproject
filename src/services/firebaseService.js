@@ -15,13 +15,14 @@ import {
 const LEADS_COLLECTION = 'leads';
 const CAMPAIGNS_COLLECTION = 'campaigns';
 const USERS_COLLECTION = 'users';
+const HISTORY_COLLECTION = 'history';
 
 // Lead Management
 export const addLead = async (leadData, userId) => {
     try {
         const docRef = await addDoc(collection(db, LEADS_COLLECTION), {
             ...leadData,
-            userId: userId, // Associate lead with user
+            userId: userId,
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
         });
@@ -34,7 +35,6 @@ export const addLead = async (leadData, userId) => {
 
 export const getLeads = async (userId) => {
     try {
-        // Filter leads by userId
         const q = query(
             collection(db, LEADS_COLLECTION),
             orderBy('createdAt', 'desc')
@@ -43,7 +43,6 @@ export const getLeads = async (userId) => {
         const leads = [];
         querySnapshot.forEach((doc) => {
             const data = doc.data();
-            // Only include leads for this user
             if (data.userId === userId) {
                 leads.push({ id: doc.id, ...data });
             }
@@ -70,7 +69,7 @@ export const addCampaign = async (campaignData, userId) => {
     try {
         const docRef = await addDoc(collection(db, CAMPAIGNS_COLLECTION), {
             ...campaignData,
-            userId: userId, // Associate campaign with user
+            userId: userId,
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
         });
@@ -88,7 +87,6 @@ export const getCampaigns = async (userId) => {
         const campaigns = [];
         querySnapshot.forEach((doc) => {
             const data = doc.data();
-            // Only include campaigns for this user
             if (data.userId === userId) {
                 campaigns.push({ id: doc.id, ...data });
             }
@@ -180,8 +178,6 @@ export const getAnalytics = async (userId) => {
 };
 
 // Call History
-const HISTORY_COLLECTION = 'history';
-
 export const addCallHistory = async (userId, callData) => {
     try {
         const docRef = await addDoc(collection(db, HISTORY_COLLECTION), {

@@ -66,8 +66,6 @@ export const writeToGoogleSheetsAPI = async (payload, token) => {
     }
 };
 
-// Keeping this for compatibility with other parts of the app if needed, 
-// but preferring the direct REST API above.
 export const writeToGoogleSheetsViaWebApp = async (data, webAppUrl) => {
     if (!webAppUrl) {
         console.warn('Google Apps Script Web App URL not provided.');
@@ -75,8 +73,6 @@ export const writeToGoogleSheetsViaWebApp = async (data, webAppUrl) => {
     }
 
     try {
-        // We use text/plain for the body to avoid CORS preflight (OPTIONS request)
-        // Apps Script's doPost can still parse it with JSON.parse(e.postData.contents)
         const response = await fetch(webAppUrl, {
             method: 'POST',
             mode: 'no-cors',
@@ -87,7 +83,6 @@ export const writeToGoogleSheetsViaWebApp = async (data, webAppUrl) => {
             body: JSON.stringify(data)
         });
 
-        // With no-cors, the response is opaque, so we assume success if no exception occurred
         return { success: true };
     } catch (error) {
         console.error('Error writing via Web App:', error);
@@ -95,12 +90,14 @@ export const writeToGoogleSheetsViaWebApp = async (data, webAppUrl) => {
     }
 };
 
-// Existing lead reading function updated with new ID
-export const readFromGoogleSheets = async () => {
+export const readFromGoogleSheets = async (token) => {
+    if (!token) return [];
     try {
         const range = `Sheet1!A:D`;
-        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${range}?key=${API_KEY}`;
-        const response = await fetch(url);
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${range}`;
+        const response = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
         const data = await response.json();
         if (data.values) {
             const [, ...rows] = data.values;
@@ -113,6 +110,7 @@ export const readFromGoogleSheets = async () => {
         }
         return [];
     } catch (error) {
+        console.error('Error reading from Google Sheets:', error);
         return [];
     }
 };

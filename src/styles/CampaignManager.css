@@ -1,9 +1,8 @@
-/* === Campaign Manager - Mobile & Theme Refinement === */
+/* === Campaign Manager - Professional SaaS Refinement === */
 .campaign-manager {
+    padding: 2rem;
+    max-width: 1400px;
     background: transparent;
-    border-radius: 28px;
-    padding: 0;
-    transition: var(--transition);
 }
 
 .campaign-header {
@@ -12,64 +11,147 @@
     align-items: center;
     margin-bottom: 2.5rem;
     gap: 1.5rem;
-    padding: 0 1rem;
 }
 
 .campaign-header h2 {
     font-size: 1.75rem;
+    font-weight: 800;
     color: var(--text-primary);
     margin: 0;
+}
+
+.create-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary-blue);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.create-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 .campaigns-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 2rem;
-    margin-top: 1rem;
+    gap: 1.5rem;
 }
 
 .campaign-card {
     background: var(--bg-card);
-    border-radius: 24px;
-    padding: 2.25rem;
-    box-shadow: var(--shadow-premium);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
     transition: var(--transition);
-    border: 1px solid var(--border-glass);
-    position: relative;
-    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+    border-left: 4px solid var(--primary-blue);
 }
 
 .campaign-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-elevated);
-    border-color: var(--primary);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-blue);
 }
 
 .status-badge {
-    padding: 0.45rem 1rem;
+    padding: 0.25rem 0.75rem;
     border-radius: 100px;
     font-size: 0.75rem;
-    font-weight: 800;
+    font-weight: 600;
     text-transform: uppercase;
 }
 
 .status-badge.active {
     background: rgba(16, 185, 129, 0.1);
-    color: #10b981;
+    color: var(--success);
 }
 
 .status-badge.paused {
     background: rgba(245, 158, 11, 0.1);
-    color: #f59e0b;
+    color: var(--warning);
+}
+
+.status-badge.completed {
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--primary-blue);
 }
 
 .campaign-description {
     color: var(--text-secondary);
-    font-size: 0.95rem;
+    font-size: 0.875rem;
     line-height: 1.6;
-    margin-bottom: 1.5rem;
+    margin: 1rem 0;
 }
 
+.campaign-footer {
+    display: flex;
+    gap: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.campaign-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.campaign-stat svg {
+    color: var(--primary-blue);
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 1rem;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-premium);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-header h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* Responsive */
 @media (max-width: 768px) {
     .campaign-header {
         flex-direction: column;

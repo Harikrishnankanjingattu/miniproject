@@ -15,7 +15,7 @@ import MobileNav from './components/MobileNav';
 function SubAdminDashboard({ user, userProfile, googleToken, onGoogleAuth }) {
     const [activeSection, setActiveSection] = useState('dashboard');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isMobile, setIsMobile] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const [timeLeft, setTimeLeft] = useState(null);
     const [moduleSettings, setModuleSettings] = useState({
         leadsEnabled: true,
@@ -28,7 +28,12 @@ function SubAdminDashboard({ user, userProfile, googleToken, onGoogleAuth }) {
     };
 
     useEffect(() => {
-        // Listen to global module settings
+        const handleResize = () => setIsMobile(window.innerWidth <= 1024);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    useEffect(() => {
         const unsubscribe = onSnapshot(doc(db, 'settings', 'modules'), (doc) => {
             if (doc.exists()) {
                 const settings = doc.data();
@@ -44,19 +49,6 @@ function SubAdminDashboard({ user, userProfile, googleToken, onGoogleAuth }) {
 
         return () => unsubscribe();
     }, [activeSection, userProfile]);
-
-    useEffect(() => {
-        const checkMobile = () => {
-            const mobile = window.innerWidth <= 768;
-            setIsMobile(mobile);
-            // Close mobile menu if we switch to desktop
-            if (!mobile) setIsMobileMenuOpen(false);
-        };
-
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
 
     const handleLogout = React.useCallback(async () => {
         try {
@@ -81,7 +73,7 @@ function SubAdminDashboard({ user, userProfile, googleToken, onGoogleAuth }) {
             if (remaining <= 0) {
                 clearInterval(interval);
                 signOut(auth).then(() => {
-                    alert("Your session has expired. You have been logged out by the administrator.");
+                    alert("Your session has expired. You have been logged out.");
                     window.location.reload();
                 });
             } else {
@@ -129,7 +121,6 @@ function SubAdminDashboard({ user, userProfile, googleToken, onGoogleAuth }) {
 
     return (
         <div className={`subadmin-dashboard ${isMobile ? 'is-mobile' : ''}`}>
-            {/* Mobile Top Header */}
             {isMobile && (
                 <header className="mobile-dashboard-header glass-effect">
                     <div className="mobile-branding">

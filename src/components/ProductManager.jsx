@@ -244,7 +244,7 @@ const ProductManager = ({ user, userProfile, googleToken, onGoogleAuth }) => {
                             </div>
 
                             {status.msg && (
-                                <div className={`status - msg ${status.type} `}>
+                                <div className={`status-msg ${status.type}`}>
                                     {status.msg}
                                 </div>
                             )}

@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth } from './firebase';
 import { collection, getDocs, doc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
-import { LogOut, Search, Users, ShieldAlert, ShieldCheck, Settings2, ToggleLeft, ToggleRight, Menu } from 'lucide-react';
+import {
+    LogOut, Search, Users, ShieldAlert,
+    ShieldCheck, Settings2, ToggleLeft,
+    ToggleRight, Package, LayoutGrid,
+    Activity, ArrowUpRight, ArrowDownRight,
+    Lock, Unlock, Zap
+} from 'lucide-react';
 import './AdminDashboard.css';
 import ProductManager from './components/ProductManager';
-
+import Sidebar from './components/Sidebar';
 import MobileNav from './components/MobileNav';
 
 const AdminDashboard = ({ user, userProfile, googleToken, onGoogleAuth }) => {
@@ -12,12 +18,13 @@ const AdminDashboard = ({ user, userProfile, googleToken, onGoogleAuth }) => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
-    const [activeTab, setActiveTab] = useState('users'); // 'users' or 'products'
+    const [activeTab, setActiveTab] = useState('users');
+
     const [moduleSettings, setModuleSettings] = useState({
         leadsEnabled: true,
         campaignsEnabled: true
     });
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
 
     useEffect(() => {
@@ -27,11 +34,14 @@ const AdminDashboard = ({ user, userProfile, googleToken, onGoogleAuth }) => {
     }, []);
 
     useEffect(() => {
-        fetchUsers();
-        fetchModuleSettings();
+        fetchData();
     }, []);
 
-    const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+    const fetchData = async () => {
+        setLoading(true);
+        await Promise.all([fetchUsers(), fetchModuleSettings()]);
+        setLoading(false);
+    };
 
     const fetchModuleSettings = async () => {
         try {
@@ -57,7 +67,7 @@ const AdminDashboard = ({ user, userProfile, googleToken, onGoogleAuth }) => {
             await setDoc(doc(db, 'settings', 'modules'), newSettings);
             setModuleSettings(newSettings);
         } catch (error) {
-            alert("Error updating module settings: " + error.message);
+            console.error("Error updating module settings:", error);
         }
     };
 
@@ -71,8 +81,6 @@ const AdminDashboard = ({ user, userProfile, googleToken, onGoogleAuth }) => {
             setUsers(usersData);
         } catch (error) {
             console.error("Error fetching users:", error);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -84,7 +92,7 @@ const AdminDashboard = ({ user, userProfile, googleToken, onGoogleAuth }) => {
             });
             setUsers(users.map(u => u.id === userId ? { ...u, status: newStatus } : u));
         } catch (error) {
-            alert("Error updating status: " + error.message);
+            console.error("Error updating status:", error);
         }
     };
 
@@ -96,7 +104,7 @@ const AdminDashboard = ({ user, userProfile, googleToken, onGoogleAuth }) => {
             });
             setUsers(users.map(u => u.id === userId ? { ...u, [module]: newVal } : u));
         } catch (error) {
-            alert("Error updating user module: " + error.message);
+            console.error("Error updating user module:", error);
         }
     };
 
@@ -108,37 +116,34 @@ const AdminDashboard = ({ user, userProfile, googleToken, onGoogleAuth }) => {
                 sessionStartedAt: timeoutVal ? new Date().toISOString() : null
             });
             setUsers(users.map(u => u.id === userId ? { ...u, sessionTimeout: timeoutVal } : u));
-            if (timeoutVal) alert(`Timer set to ${timeoutVal} minutes for this user.`);
-            else alert("Timer removed for this user.");
         } catch (error) {
-            alert("Error updating timer: " + error.message);
+            console.error("Error updating timer:", error);
         }
     };
 
     const filteredUsers = users.filter(user => {
-        const matchesSearch = (user.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.email?.toLowerCase().includes(searchTerm.toLowerCase()));
+        if (user.role === 'admin') return false; // Hide admins from the list
+        const nameMatch = user.company?.toLowerCase().includes(searchTerm.toLowerCase());
+        const emailMatch = user.email?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = nameMatch || emailMatch;
         const matchesFilter = filterStatus === 'all' || user.status === filterStatus;
         return matchesSearch && matchesFilter;
     });
 
     const stats = {
-        total: users.length,
+        total: users.filter(u => u.role !== 'admin').length,
         active: users.filter(u => u.status === 'active' && u.role !== 'admin').length,
-        suspended: users.filter(u => u.status === 'suspended').length
+        suspended: users.filter(u => u.status === 'suspended').length,
+        totalCredits: users.reduce((acc, curr) => acc + (curr.credits || 0), 0)
     };
 
     if (loading) return (
-        <div className="admin-loading">
-            <div className="spinner"></div>
-            <p>Loading Secure Admin Panel...</p>
+        <div className="admin-loading" style={{ background: '#0f172a', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+            <div className="spinner" style={{ border: '4px solid rgba(255,255,255,0.1)', borderTop: '4px solid #3b82f6', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>
+            <p style={{ marginTop: '1rem', fontWeight: '600' }}>Initializing Master Console...</p>
+            <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
         </div>
     );
-
-    const adminNavItems = [
-        { id: 'users', label: 'Users' },
-        { id: 'products', label: 'Inventory' }
-    ];
 
     return (
         <div className={`admin-layout ${isMobile ? 'is-mobile' : ''}`}>
@@ -148,7 +153,7 @@ const AdminDashboard = ({ user, userProfile, googleToken, onGoogleAuth }) => {
                         <div className="mini-logo admin">
                             <ShieldCheck size={20} color="white" />
                         </div>
-                        <span className="mobile-brand-name">Admin Console</span>
+                        <span className="mobile-brand-name">Master Admin</span>
                     </div>
                 </header>
             )}
@@ -160,52 +165,69 @@ const AdminDashboard = ({ user, userProfile, googleToken, onGoogleAuth }) => {
                     user={user}
                     userProfile={userProfile}
                     onLogout={() => auth.signOut()}
-                    isMobileOpen={isMobileMenuOpen}
-                    isMobile={isMobile}
-                    moduleSettings={moduleSettings}
-                    toggleMobileMenu={toggleMobileMenu}
                 />
             )}
 
             <div className="admin-main">
-
                 <div className="admin-container">
                     <header className="admin-header">
                         <div className="header-title">
                             <h1>Master Console</h1>
-                            <p>Global system management & user orchestration</p>
+                            <p>Global sub-admin orchestration & system telemetry</p>
+                        </div>
+                        <div className="header-meta" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                            <div className="system-status" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(16, 185, 129, 0.1)', padding: '0.5rem 1rem', borderRadius: '100px', fontSize: '0.8rem', fontWeight: '700', color: '#10b981' }}>
+                                <div className="pulse-dot" style={{ width: '8px', height: '8px', background: '#10b981', borderRadius: '50%', boxShadow: '0 0 10px #10b981' }}></div>
+                                System Online
+                            </div>
                         </div>
                     </header>
 
                     <div className="stats-grid">
                         <div className="stat-card">
-                            <p className="card-label">Total Users</p>
-                            <p className="stat-value">{stats.total}</p>
+                            <p className="card-label">Total Sub-Admins</p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <p className="stat-value">{stats.total}</p>
+                                <Users size={24} color="#3b82f6" />
+                            </div>
                         </div>
                         <div className="stat-card active">
-                            <p className="card-label">Active Sub-Admins</p>
-                            <p className="stat-value">{stats.active}</p>
+                            <p className="card-label">Operational Partners</p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <p className="stat-value">{stats.active}</p>
+                                <Zap size={24} color="#10b981" />
+                            </div>
                         </div>
                         <div className="stat-card suspended">
-                            <p className="card-label">Suspended Accounts</p>
-                            <p className="stat-value">{stats.suspended}</p>
+                            <p className="card-label">Access Revoked</p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <p className="stat-value">{stats.suspended}</p>
+                                <Lock size={24} color="#ef4444" />
+                            </div>
+                        </div>
+                        <div className="stat-card">
+                            <p className="card-label">Distributed Credits</p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <p className="stat-value">{stats.totalCredits}</p>
+                                <Activity size={24} color="#f59e0b" />
+                            </div>
                         </div>
                     </div>
 
-                    <div className="admin-tabs glass-effect">
+                    <div className="admin-tabs">
                         <button
                             className={`admin-tab-btn ${activeTab === 'users' ? 'active' : ''}`}
                             onClick={() => setActiveTab('users')}
                         >
                             <Users size={18} />
-                            User Management
+                            Partner Orchestration
                         </button>
                         <button
                             className={`admin-tab-btn ${activeTab === 'products' ? 'active' : ''}`}
                             onClick={() => setActiveTab('products')}
                         >
                             <Package size={18} />
-                            Universal Products
+                            Global Inventory
                         </button>
                     </div>
 
@@ -213,35 +235,35 @@ const AdminDashboard = ({ user, userProfile, googleToken, onGoogleAuth }) => {
                         <>
                             <section className="settings-section">
                                 <div className="section-header">
-                                    <Settings2 size={24} color="#1e3a8a" />
-                                    <h2>Global Module Control</h2>
+                                    <Settings2 size={24} color="#3b82f6" />
+                                    <h2>System Feature Flags</h2>
                                 </div>
                                 <div className="settings-grid">
                                     <div className="settings-card">
                                         <div className="settings-info">
-                                            <h3>Lead Generation Module</h3>
-                                            <p>Enable or disable lead generation features for all users</p>
+                                            <h3>Lead Extraction Engine</h3>
+                                            <p>Global toggle for all active partners</p>
                                         </div>
                                         <button
                                             className={`toggle-btn ${moduleSettings.leadsEnabled ? 'on' : 'off'}`}
                                             onClick={() => toggleModule('leadsEnabled')}
                                         >
-                                            {moduleSettings.leadsEnabled ? <ToggleRight size={32} /> : <ToggleLeft size={32} />}
-                                            <span>{moduleSettings.leadsEnabled ? 'ENABLED' : 'DISABLED'}</span>
+                                            {moduleSettings.leadsEnabled ? <ToggleRight size={36} /> : <ToggleLeft size={36} />}
+                                            <span>{moduleSettings.leadsEnabled ? 'OPERATIONAL' : 'DEACTIVATED'}</span>
                                         </button>
                                     </div>
 
                                     <div className="settings-card">
                                         <div className="settings-info">
-                                            <h3>Campaign Management</h3>
-                                            <p>Enable or disable marketing campaigns for all users</p>
+                                            <h3>Campaign Automator</h3>
+                                            <p>Global toggle for all active partners</p>
                                         </div>
                                         <button
                                             className={`toggle-btn ${moduleSettings.campaignsEnabled ? 'on' : 'off'}`}
                                             onClick={() => toggleModule('campaignsEnabled')}
                                         >
-                                            {moduleSettings.campaignsEnabled ? <ToggleRight size={32} /> : <ToggleLeft size={32} />}
-                                            <span>{moduleSettings.campaignsEnabled ? 'ENABLED' : 'DISABLED'}</span>
+                                            {moduleSettings.campaignsEnabled ? <ToggleRight size={36} /> : <ToggleLeft size={36} />}
+                                            <span>{moduleSettings.campaignsEnabled ? 'OPERATIONAL' : 'DEACTIVATED'}</span>
                                         </button>
                                     </div>
                                 </div>
@@ -249,27 +271,29 @@ const AdminDashboard = ({ user, userProfile, googleToken, onGoogleAuth }) => {
 
                             <section className="table-section">
                                 <div className="table-controls">
-                                    <h2>User Activity Center</h2>
-                                    <div className="control-group">
-                                        <div className="search-input-wrapper">
-                                            <Search size={18} color="#94a3b8" style={{ position: 'absolute', left: '0.8rem' }} />
-                                            <input
-                                                type="text"
-                                                placeholder="Search by name or email..."
-                                                className="search-input"
-                                                value={searchTerm}
-                                                onChange={(e) => setSearchTerm(e.target.value)}
-                                            />
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                                        <h2>Sub-Admin Directory</h2>
+                                        <div className="control-group" style={{ marginTop: 0 }}>
+                                            <div className="search-input-wrapper">
+                                                <Search size={18} color="#94a3b8" style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)' }} />
+                                                <input
+                                                    type="text"
+                                                    placeholder="Filter by company or email..."
+                                                    className="search-input"
+                                                    value={searchTerm}
+                                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                                />
+                                            </div>
+                                            <select
+                                                className="status-select"
+                                                value={filterStatus}
+                                                onChange={(e) => setFilterStatus(e.target.value)}
+                                            >
+                                                <option value="all">Global Access</option>
+                                                <option value="active">Active Only</option>
+                                                <option value="suspended">Restricted Only</option>
+                                            </select>
                                         </div>
-                                        <select
-                                            className="status-select"
-                                            value={filterStatus}
-                                            onChange={(e) => setFilterStatus(e.target.value)}
-                                        >
-                                            <option value="all">All Access</option>
-                                            <option value="active">Active Only</option>
-                                            <option value="suspended">Suspended Only</option>
-                                        </select>
                                     </div>
                                 </div>
 
@@ -277,109 +301,102 @@ const AdminDashboard = ({ user, userProfile, googleToken, onGoogleAuth }) => {
                                     <table>
                                         <thead>
                                             <tr>
-                                                <th>Branding / Entity</th>
-                                                <th>Contact Details</th>
-                                                <th>Credits</th>
-                                                <th>Lead Gen</th>
+                                                <th>Sub-Admin & Company</th>
+                                                <th>Authentication</th>
+                                                <th>Balance</th>
+                                                <th>Leads</th>
                                                 <th>Campaign</th>
-                                                <th>Session Timer</th>
+                                                <th>Session</th>
                                                 <th>Status</th>
-                                                <th>Actions</th>
+                                                <th>Orchestration</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {filteredUsers.map(user => (
-                                                <tr key={user.id}>
-                                                    <td>
-                                                        <div className="user-entity">
+                                            {filteredUsers.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan="8" style={{ textAlign: 'center', padding: '4rem', color: '#94a3b8' }}>
+                                                        No sub-admins found matching your filters.
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                filteredUsers.map(u => (
+                                                    <tr key={u.id}>
+                                                        <td>
                                                             <div className="company-branding">
                                                                 <div className="company-logo-mini">
-                                                                    {user.companyLogo ? (
-                                                                        <img src={user.companyLogo} alt="Logo" />
+                                                                    {u.companyLogo ? (
+                                                                        <img src={u.companyLogo} alt="Logo" />
                                                                     ) : (
-                                                                        (user.company || user.email).charAt(0).toUpperCase()
+                                                                        (u.company || u.email).charAt(0).toUpperCase()
                                                                     )}
                                                                 </div>
                                                                 <div className="company-info">
-                                                                    <div className="company">{user.company || 'Enterprise User'}</div>
-                                                                    {user.role === 'admin' && <span className="admin-badge">MASTER ADMIN</span>}
+                                                                    <div className="company">{u.company || 'Private Partner'}</div>
+                                                                    <span style={{ fontSize: '0.75rem', color: '#64748b' }}>ID: {u.id.slice(0, 8)}</span>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div className="user-contact">
-                                                            <div className="email">{user.email || user.companyEmail}</div>
-                                                            {user.companyPhone && <div className="phone">{user.companyPhone}</div>}
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <span className="credit-value">{user.credits ?? '0'}</span>
-                                                    </td>
-                                                    <td>
-                                                        {user.role !== 'admin' && (
+                                                        </td>
+                                                        <td>
+                                                            <div className="user-contact">
+                                                                <div className="email">{u.email}</div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <span className="credit-value">{u.credits || 0}</span>
+                                                        </td>
+                                                        <td>
                                                             <button
-                                                                className={`module-toggle-pill ${user.leadsEnabled !== false ? 'enabled' : 'disabled'}`}
-                                                                onClick={() => toggleUserModule(user.id, 'leadsEnabled', user.leadsEnabled)}
+                                                                className={`module-toggle-pill ${u.leadsEnabled !== false ? 'enabled' : 'disabled'}`}
+                                                                onClick={() => toggleUserModule(u.id, 'leadsEnabled', u.leadsEnabled)}
                                                             >
-                                                                {user.leadsEnabled !== false ? 'ON' : 'OFF'}
+                                                                {u.leadsEnabled !== false ? 'ALLOWED' : 'DENIED'}
                                                             </button>
-                                                        )}
-                                                    </td>
-                                                    <td>
-                                                        {user.role !== 'admin' && (
+                                                        </td>
+                                                        <td>
                                                             <button
-                                                                className={`module-toggle-pill ${user.campaignsEnabled !== false ? 'enabled' : 'disabled'}`}
-                                                                onClick={() => toggleUserModule(user.id, 'campaignsEnabled', user.campaignsEnabled)}
+                                                                className={`module-toggle-pill ${u.campaignsEnabled !== false ? 'enabled' : 'disabled'}`}
+                                                                onClick={() => toggleUserModule(u.id, 'campaignsEnabled', u.campaignsEnabled)}
                                                             >
-                                                                {user.campaignsEnabled !== false ? 'ON' : 'OFF'}
+                                                                {u.campaignsEnabled !== false ? 'ALLOWED' : 'DENIED'}
                                                             </button>
-                                                        )}
-                                                    </td>
-                                                    <td>
-                                                        {user.role !== 'admin' && (
+                                                        </td>
+                                                        <td>
                                                             <div className="timer-input-group">
                                                                 <input
                                                                     type="number"
                                                                     className="timer-input"
-                                                                    defaultValue={user.sessionTimeout || ''}
-                                                                    onBlur={(e) => updateTimer(user.id, e.target.value)}
+                                                                    defaultValue={u.sessionTimeout || ''}
+                                                                    onBlur={(e) => updateTimer(u.id, e.target.value)}
                                                                 />
-                                                                <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>min</span>
+                                                                <span style={{ fontSize: '0.7rem', color: '#64748b' }}>min</span>
                                                             </div>
-                                                        )}
-                                                    </td>
-                                                    <td>
-                                                        <span className={`status-pill ${user.status}`}>
-                                                            {user.status === 'active' ? 'Authorized' : 'Suspended'}
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        {user.role !== 'admin' && (
+                                                        </td>
+                                                        <td>
+                                                            <span className={`status-pill ${u.status}`}>
+                                                                {u.status === 'active' ? 'Operational' : 'Restricted'}
+                                                            </span>
+                                                        </td>
+                                                        <td>
                                                             <button
-                                                                className={`action-btn ${user.status === 'active' ? 'suspend' : 'activate'}`}
-                                                                onClick={() => toggleUserStatus(user.id, user.status)}
+                                                                className={`action-btn ${u.status === 'active' ? 'suspend' : 'activate'}`}
+                                                                onClick={() => toggleUserStatus(u.id, u.status)}
+                                                                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                                                             >
-                                                                {user.status === 'active' ? 'Suspend Account' : 'Activate Account'}
+                                                                {u.status === 'active' ? <Lock size={14} /> : <Unlock size={14} />}
+                                                                {u.status === 'active' ? 'Restrict' : 'Authorize'}
                                                             </button>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            )}
                                         </tbody>
                                     </table>
-                                    {filteredUsers.length === 0 && (
-                                        <div className="empty-state">
-                                            <Users size={48} color="#e2e8f0" />
-                                            <p>No user records match your search criteria.</p>
-                                        </div>
-                                    )}
                                 </div>
                             </section>
                         </>
                     ) : (
-                        <div className="admin-product-view glass-effect" style={{ padding: '2rem', borderRadius: '24px' }}>
-                            <ProductManager user={user} userProfile={userProfile} />
+                        <div className="admin-product-view">
+                            <ProductManager user={user} userProfile={userProfile} googleToken={googleToken} onGoogleAuth={onGoogleAuth} />
                         </div>
                     )}
                 </div>
@@ -391,9 +408,8 @@ const AdminDashboard = ({ user, userProfile, googleToken, onGoogleAuth }) => {
                     onSectionChange={(section) => {
                         if (section === 'dashboard' || section === 'leads') setActiveTab('users');
                         else if (section === 'products') setActiveTab('products');
-                        else if (section === 'profile') setActiveTab('users');
                     }}
-                    moduleSettings={{ leadsEnabled: true, campaignsEnabled: false }}
+                    moduleSettings={{ leadsEnabled: true, campaignsEnabled: true }}
                 />
             )}
         </div>

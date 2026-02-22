@@ -23,9 +23,10 @@ const Dashboard = ({ user, userProfile }) => {
     const loadDashboardData = async () => {
         setLoading(true);
         try {
+            const token = localStorage.getItem('google_token');
             const [analyticsData, sheetsData] = await Promise.all([
                 getAnalytics(user.uid),
-                readFromGoogleSheets()
+                readFromGoogleSheets(token)
             ]);
 
             setAnalytics(analyticsData);
@@ -72,7 +73,7 @@ const Dashboard = ({ user, userProfile }) => {
                     <StatCard
                         icon={UserPlus}
                         title="Total Leads"
-                        value={analytics.totalLeads + sheetLeads.length}
+                        value={analytics.totalLeads + (sheetLeads?.length || 0)}
                         color="#3b82f6"
                         delay={0.1}
                     />
@@ -147,6 +148,13 @@ const Dashboard = ({ user, userProfile }) => {
                                             <td><span className="status-dot"></span> Pending</td>
                                         </tr>
                                     ))}
+                                    {analytics.recentLeads.length === 0 && sheetLeads.length === 0 && (
+                                        <tr>
+                                            <td colSpan="5" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                                                No leads discovered yet.
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
@@ -158,4 +166,3 @@ const Dashboard = ({ user, userProfile }) => {
 };
 
 export default Dashboard;
-

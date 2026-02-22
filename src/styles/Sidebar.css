@@ -132,6 +132,11 @@
     font-size: 0.875rem;
 }
 
+.user-details {
+    flex: 1;
+    min-width: 0;
+}
+
 .user-name {
     font-weight: 600;
     font-size: 0.8125rem;
@@ -139,11 +144,13 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin: 0;
 }
 
 .user-plan {
     font-size: 0.6875rem;
     color: rgba(255, 255, 255, 0.4);
+    margin: 0;
 }
 
 .btn-logout {
@@ -153,6 +160,9 @@
     cursor: pointer;
     transition: var(--transition);
     padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-logout:hover {

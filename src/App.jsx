@@ -7,7 +7,7 @@ import SubAdminDashboard from './SubAdminDashboard'
 import AdminDashboard from './AdminDashboard'
 import PlansPage from './PlansPage'
 import LandingPage from './LandingPage'
-import { Palette, Moon, Sun, Smartphone } from 'lucide-react'
+import { Palette, Moon, Sun } from 'lucide-react'
 import './index.css'
 
 const ThemeToggle = ({ theme, setTheme }) => {
@@ -69,7 +69,6 @@ class ErrorBoundary extends React.Component {
 }
 
 function App() {
-
   const [user, setUser] = useState(null)
   const [userProfile, setUserProfile] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -109,11 +108,9 @@ function App() {
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
 
-      // Try to recover token from local storage
       const savedToken = localStorage.getItem('google_token');
       if (savedToken) setGoogleToken(savedToken);
 
-      // Cleanup previous profile listener if it exists
       if (unsubscribeProfile) {
         unsubscribeProfile();
         unsubscribeProfile = null;
@@ -156,8 +153,8 @@ function App() {
           <div style={{
             width: '50px',
             height: '50px',
-            border: '4px solid var(--border-glass)',
-            borderTop: '4px solid var(--primary)',
+            border: '4px solid var(--border-subtle)',
+            borderTop: '4px solid var(--primary-blue)',
             borderRadius: '50%',
             animation: 'spin 1s linear infinite',
             margin: '0 auto 1rem'
@@ -174,7 +171,13 @@ function App() {
       {(() => {
         if (!user) {
           if (showAuth) {
-            return <AuthPage initialMode={initialAuthMode} onGoogleAuth={handleGoogleAuth} googleToken={googleToken} />
+            return (
+              <AuthPage
+                initialMode={initialAuthMode}
+                onGoogleAuth={handleGoogleAuth}
+                googleToken={googleToken}
+              />
+            )
           }
           return (
             <LandingPage
@@ -205,9 +208,9 @@ function App() {
               <div style={{
                 background: 'var(--bg-card)',
                 padding: '3rem',
-                borderRadius: '32px',
-                boxShadow: 'var(--shadow-elevated)',
-                border: '1px solid var(--border-glass)'
+                borderRadius: 'var(--radius-lg)',
+                boxShadow: 'var(--shadow-lg)',
+                border: '1px solid var(--border-subtle)'
               }}>
                 <h1 style={{ color: 'var(--error)', marginBottom: '1rem', fontWeight: '800' }}>Account Suspended</h1>
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>Your account has been suspended by the administrator. Please contact support.</p>
@@ -215,13 +218,13 @@ function App() {
                   onClick={() => auth.signOut()}
                   style={{
                     padding: '0.85rem 2rem',
-                    background: 'var(--primary)',
+                    background: 'var(--primary-blue)',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '14px',
+                    borderRadius: 'var(--radius-md)',
                     fontWeight: '700',
                     cursor: 'pointer',
-                    boxShadow: 'var(--primary-glow)'
+                    boxShadow: 'var(--shadow-md)'
                   }}
                 >
                   Logout
@@ -255,9 +258,9 @@ function App() {
             <div style={{
               background: 'var(--bg-card)',
               padding: '3rem',
-              borderRadius: '32px',
-              boxShadow: 'var(--shadow-elevated)',
-              border: '1px solid var(--border-glass)'
+              borderRadius: 'var(--radius-lg)',
+              boxShadow: 'var(--shadow-lg)',
+              border: '1px solid var(--border-subtle)'
             }}>
               <h2 style={{ color: 'var(--text-primary)', marginBottom: '1rem', fontWeight: '800' }}>Security Check...</h2>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>Authorized access for {user?.email}...</p>
@@ -267,8 +270,8 @@ function App() {
                   padding: '0.85rem 2rem',
                   background: 'var(--bg-card)',
                   color: 'var(--text-primary)',
-                  border: '1px solid var(--border-glass)',
-                  borderRadius: '14px',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: 'var(--radius-md)',
                   fontWeight: '700',
                   cursor: 'pointer'
                 }}
@@ -282,6 +285,5 @@ function App() {
     </ErrorBoundary>
   )
 }
-
 
 export default App

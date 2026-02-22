@@ -29,10 +29,11 @@ const CampaignManager = ({ user }) => {
     const loadData = async () => {
         setLoading(true);
         try {
+            const token = localStorage.getItem('google_token');
             const [campaignsData, leadsData, productsData] = await Promise.all([
                 getCampaigns(user.uid),
                 getLeads(user.uid),
-                readProductsFromGoogleSheets()
+                readProductsFromGoogleSheets(token)
             ]);
             setCampaigns(campaignsData);
             setLeads(leadsData);
@@ -91,8 +92,10 @@ const CampaignManager = ({ user }) => {
             if (result.success) {
                 setMessage({ type: 'success', text: 'Campaign created and scheduled successfully!' });
                 setFormData({ name: '', description: '', selectedUsers: [], scheduledDate: '', scheduledTime: '', productId: '' });
-                setShowModal(false);
-                loadData();
+                setTimeout(() => {
+                    setShowModal(false);
+                    loadData();
+                }, 1500);
             } else {
                 setMessage({ type: 'error', text: 'Failed to create campaign' });
             }
@@ -127,7 +130,6 @@ const CampaignManager = ({ user }) => {
                 </button>
             </div>
 
-            {/* Campaigns Grid */}
             <div className="campaigns-grid">
                 {loading ? (
                     <div className="loading-state">Loading campaigns...</div>
@@ -145,27 +147,23 @@ const CampaignManager = ({ user }) => {
                                 <span className={`status-badge ${campaign.status}`}>
                                     {campaign.status}
                                 </span>
-                                {campaign.scheduledDate && (
-                                    <span className="scheduled-badge">
-                                        Scheduled
-                                    </span>
-                                )}
                             </div>
                             <p className="campaign-description">{campaign.description}</p>
 
                             {campaign.productId && (
-                                <div className="campaign-product-tag">
+                                <div className="campaign-product-tag" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--primary-blue)', marginBottom: '0.5rem' }}>
                                     <Package size={14} />
                                     <span>Linked: {products.find(p => p.id === campaign.productId)?.name || 'Product'}</span>
                                 </div>
                             )}
 
                             {campaign.scheduledDate && (
-                                <div className="schedule-info">
+                                <div className="schedule-info" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
                                     <Calendar size={14} />
                                     <span>{new Date(campaign.scheduledDate).toLocaleDateString()} at {campaign.scheduledTime}</span>
                                 </div>
                             )}
+
                             <div className="campaign-footer">
                                 <div className="campaign-stat">
                                     <Users size={16} />
@@ -185,7 +183,6 @@ const CampaignManager = ({ user }) => {
                 )}
             </div>
 
-            {/* Create Campaign Modal */}
             {showModal && (
                 <div className="modal-overlay" onClick={closeModal}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -211,20 +208,14 @@ const CampaignManager = ({ user }) => {
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="productId"><Package size={14} /> Link Product (Optional)</label>
+                                <label htmlFor="productId" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Package size={14} /> Link Product (Optional)</label>
                                 <select
                                     id="productId"
                                     name="productId"
                                     value={formData.productId}
                                     onChange={handleChange}
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.85rem',
-                                        borderRadius: '12px',
-                                        border: '1px solid var(--border-glass)',
-                                        background: 'var(--bg-deep)',
-                                        color: 'var(--text-primary)'
-                                    }}
+                                    className="status-select"
+                                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-subtle)', background: 'var(--bg-main)', color: 'var(--text-primary)' }}
                                 >
                                     <option value="">No Product Linked</option>
                                     {products.map(product => (
@@ -246,7 +237,7 @@ const CampaignManager = ({ user }) => {
                                 />
                             </div>
 
-                            <div className="form-row">
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                                 <div className="form-group">
                                     <label htmlFor="scheduledDate">Scheduled Date *</label>
                                     <input
@@ -274,18 +265,18 @@ const CampaignManager = ({ user }) => {
 
                             <div className="form-group">
                                 <label>Select Users/Leads *</label>
-                                <div className="users-selection">
+                                <div className="users-selection" style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid var(--border-subtle)', borderRadius: '8px', padding: '1rem' }}>
                                     {leads.length === 0 ? (
-                                        <p className="no-users">No leads available. Create some leads first!</p>
+                                        <p className="no-users" style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No leads available.</p>
                                     ) : (
                                         leads.map((lead) => (
-                                            <label key={lead.id} className="user-checkbox">
+                                            <label key={lead.id} className="user-checkbox" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.5rem', cursor: 'pointer' }}>
                                                 <input
                                                     type="checkbox"
                                                     checked={formData.selectedUsers.includes(lead.id)}
                                                     onChange={() => handleUserSelection(lead.id)}
                                                 />
-                                                <span>{lead.name} - {lead.number}</span>
+                                                <span style={{ fontSize: '0.9rem' }}>{lead.name} - {lead.number}</span>
                                             </label>
                                         ))
                                     )}
@@ -293,17 +284,16 @@ const CampaignManager = ({ user }) => {
                             </div>
 
                             {message.text && (
-                                <div className={`message ${message.type}`}>
+                                <div className={`message ${message.type}`} style={{ padding: '1rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.9rem', background: message.type === 'success' ? '#dcfce7' : '#fee2e2', color: message.type === 'success' ? '#166534' : '#991b1b' }}>
                                     {message.text}
                                 </div>
                             )}
 
-                            <div className="modal-actions">
-                                <button type="button" className="cancel-btn" onClick={closeModal}>
+                            <div className="modal-actions" style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                                <button type="button" className="cancel-btn" onClick={closeModal} style={{ flex: 1, padding: '0.875rem', borderRadius: '8px', border: '1px solid var(--border-subtle)', background: 'var(--bg-main)', cursor: 'pointer' }}>
                                     Cancel
                                 </button>
-                                <button type="submit" className="submit-btn" disabled={loading}>
-                                    <Megaphone size={18} />
+                                <button type="submit" className="submit-btn" disabled={loading} style={{ flex: 1, padding: '0.875rem', borderRadius: '8px', border: 'none', background: 'var(--primary-blue)', color: 'white', fontWeight: '600', cursor: 'pointer' }}>
                                     {loading ? 'Processing...' : 'Create Campaign'}
                                 </button>
                             </div>

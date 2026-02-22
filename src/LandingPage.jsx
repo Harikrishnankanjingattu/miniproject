@@ -1,28 +1,51 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Bot, Globe, MessageSquare, Database, Calendar, ShieldCheck,
   TrendingUp, CheckCircle, ChevronRight, Hospital, GraduationCap,
-  Store, Leaf, Briefcase, Mail, Github, Twitter, Linkedin, ExternalLink, Play
+  Store, Leaf, Briefcase, Mail, Github, Twitter, Linkedin, ExternalLink, Play,
+  List, X
 } from 'lucide-react';
 import './LandingPage.css';
 
 const LandingPage = ({ onGetStarted, onLogin }) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
-    <div className="landing-page">
+    <div className={`landing-page ${mobileMenuOpen ? 'menu-open' : ''}`}>
       {/* Navigation Header */}
       <header className="lp-header">
         <div className="lp-logo" onClick={() => window.scrollTo(0, 0)}>
           <Bot size={28} />
           <span>AutoConnect AI</span>
         </div>
-        <nav className="lp-nav">
+
+        {/* Desktop Nav */}
+        <nav className="lp-nav desktop-only">
           <button onClick={() => document.getElementById('features').scrollIntoView()}>Features</button>
           <button onClick={() => document.getElementById('how-it-works').scrollIntoView()}>Process</button>
           <button onClick={() => document.getElementById('industries').scrollIntoView()}>Industries</button>
           <button onClick={onLogin}>Sign In</button>
           <button className="lp-btn-primary" onClick={onGetStarted}>Get Started</button>
         </nav>
+
+        {/* Mobile Menu Toggle */}
+        <button className="mobile-menu-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          {mobileMenuOpen ? <X size={28} /> : <List size={28} />}
+        </button>
       </header>
+
+      {/* Mobile Nav Overlay */}
+      <div className={`mobile-nav-overlay ${mobileMenuOpen ? 'active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+        <nav className="mobile-nav-menu" onClick={e => e.stopPropagation()}>
+          <button onClick={() => { document.getElementById('features').scrollIntoView(); setMobileMenuOpen(false); }}>Features</button>
+          <button onClick={() => { document.getElementById('how-it-works').scrollIntoView(); setMobileMenuOpen(false); }}>Process</button>
+          <button onClick={() => { document.getElementById('industries').scrollIntoView(); setMobileMenuOpen(false); }}>Industries</button>
+          <div className="mobile-nav-auth">
+            <button onClick={() => { onLogin(); setMobileMenuOpen(false); }}>Sign In</button>
+            <button className="lp-btn-primary" onClick={() => { onGetStarted(); setMobileMenuOpen(false); }}>Get Started</button>
+          </div>
+        </nav>
+      </div>
 
       {/* Hero Section */}
       <section className="hero-section">

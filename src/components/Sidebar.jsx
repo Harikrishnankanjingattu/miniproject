@@ -27,8 +27,8 @@ const Sidebar = ({ activeSection, onSectionChange, user, userProfile, onLogout, 
 
     const finalMenuItems = [
         { id: 'dashboard', icon: LayoutDashboard, label: 'Overview' },
-        ...(moduleSettings?.leadsEnabled !== false && (userProfile?.leadsEnabled !== false) ? [{ id: 'leads', icon: UserPlus, label: 'Lead Gen' }] : []),
-        ...(moduleSettings?.campaignsEnabled !== false && (userProfile?.campaignsEnabled !== false) ? [{ id: 'campaigns', icon: Megaphone, label: 'Campaigns' }] : []),
+        ...(moduleSettings?.leadsEnabled !== false ? [{ id: 'leads', icon: UserPlus, label: 'Lead Gen' }] : []),
+        ...(moduleSettings?.campaignsEnabled !== false ? [{ id: 'campaigns', icon: Megaphone, label: 'Campaigns' }] : []),
         { id: 'products', icon: Package, label: 'Products' },
         { id: 'history', icon: PhoneForwarded, label: 'Call History' },
         { id: 'profile', icon: User, label: 'Account' }
@@ -107,6 +107,4 @@ const Sidebar = ({ activeSection, onSectionChange, user, userProfile, onLogout, 
     );
 };
 
-
 export default Sidebar;
-

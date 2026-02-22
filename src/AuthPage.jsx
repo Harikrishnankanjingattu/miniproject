@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { auth, db } from './firebase';
 import {
   createUserWithEmailAndPassword,
@@ -10,19 +10,27 @@ import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { Smartphone, Mail, Lock, Building2 } from 'lucide-react';
 import './AuthPage.css';
 
-const AuthPage = () => {
-  const [isLogin, setIsLogin] = useState(true);
+const AuthPage = ({ initialMode = 'login', onGoogleAuth, googleToken }) => {
+  const [isLogin, setIsLogin] = useState(initialMode === 'login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [company, setCompany] = useState('');
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
+
+  useEffect(() => {
+    setIsLogin(initialMode === 'login');
+  }, [initialMode]);
 
   const handleAuth = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setMessage({ type: '', text: '' });
+
     try {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
+        setMessage({ type: 'success', text: 'Login successful! Redirecting...' });
       } else {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await setDoc(doc(db, 'users', userCredential.user.uid), {
@@ -34,17 +42,25 @@ const AuthPage = () => {
           campaignsEnabled: true,
           createdAt: new Date().toISOString()
         });
+        setMessage({ type: 'success', text: 'Account created successfully!' });
       }
     } catch (error) {
-      alert(error.message);
+      console.error("Auth Error:", error);
+      setMessage({ type: 'error', text: error.message });
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleAuth = async () => {
+    if (onGoogleAuth) {
+      await onGoogleAuth();
+      return;
+    }
+
     const provider = new GoogleAuthProvider();
     try {
+      setLoading(true);
       const result = await signInWithPopup(auth, provider);
       const userDoc = await getDoc(doc(db, 'users', result.user.uid));
       if (!userDoc.exists()) {
@@ -60,7 +76,9 @@ const AuthPage = () => {
       }
     } catch (error) {
       console.error("Google Auth Error:", error);
-      alert("Google Authentication failed. Please try again.");
+      setMessage({ type: 'error', text: "Google Authentication failed. Please try again." });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -82,6 +100,12 @@ const AuthPage = () => {
               : 'Join our platform and start managing your business.'}
           </p>
         </div>
+
+        {message.text && (
+          <div className={`auth-message ${message.type}`}>
+            {message.text}
+          </div>
+        )}
 
         <form onSubmit={handleAuth} className="auth-form">
           {!isLogin && (
@@ -133,7 +157,7 @@ const AuthPage = () => {
             className="auth-submit-btn"
             disabled={loading}
           >
-            {loading ? 'Wait a moment...' : (isLogin ? 'Sign in' : 'Create account')}
+            {loading ? 'Processing...' : (isLogin ? 'Sign in' : 'Create account')}
           </button>
 
           <div className="auth-divider">
@@ -144,6 +168,7 @@ const AuthPage = () => {
             type="button"
             className="google-auth-btn"
             onClick={handleGoogleAuth}
+            disabled={loading}
           >
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
             Sign in with Google
