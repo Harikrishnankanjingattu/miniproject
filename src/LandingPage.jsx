@@ -1,117 +1,232 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowRight, Bot, PhoneCall, BarChart3, Clock, ShieldCheck, Zap } from 'lucide-react';
+import React from 'react';
+import {
+  Bot, Globe, MessageSquare, Database, Calendar, ShieldCheck,
+  TrendingUp, CheckCircle, ChevronRight, Hospital, GraduationCap,
+  Store, Leaf, Briefcase, Mail, Github, Twitter, Linkedin, ExternalLink, Play
+} from 'lucide-react';
 import './LandingPage.css';
 
 const LandingPage = ({ onGetStarted, onLogin }) => {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 2000);
-    return () => clearTimeout(t);
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="loader-container">
-        <div className="premium-loader">
-          <div className="loader-inner"></div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="landing-page">
-      <div className="mesh-gradient"></div>
-
-      <header className="landing-header glass-effect">
-        <div className="logo-box" onClick={() => window.location.reload()}>
-          <div className="logo-icon">
-            <Bot size={24} color="white" />
-          </div>
-          <span className="logo-text">AutoConnect</span>
+      {/* Navigation Header */}
+      <header className="lp-header">
+        <div className="lp-logo" onClick={() => window.scrollTo(0, 0)}>
+          <Bot size={28} />
+          <span>AutoConnect AI</span>
         </div>
-
-        <nav className="nav-actions">
-          <button className="login-link" onClick={onLogin}>Sign In</button>
-          <button className="btn-primary" onClick={onGetStarted}>Get Started</button>
+        <nav className="lp-nav">
+          <button onClick={() => document.getElementById('features').scrollIntoView()}>Features</button>
+          <button onClick={() => document.getElementById('how-it-works').scrollIntoView()}>Process</button>
+          <button onClick={() => document.getElementById('industries').scrollIntoView()}>Industries</button>
+          <button onClick={onLogin}>Sign In</button>
+          <button className="lp-btn-primary" onClick={onGetStarted}>Get Started</button>
         </nav>
       </header>
 
-      <main className="hero-wrapper">
-        <div className="hero-content animate-fade">
-          <div className="badge-ai">
-            <Zap size={14} fill="currentColor" />
-            <span>Next-Gen Voice AI</span>
-          </div>
-
-          <h1 className="hero-title">
-            <span className="title-gradient">Scale your calls with</span><br />
-            <span className="accent-gradient">Human-Like AI</span>
-          </h1>
-
-          <p className="hero-subtitle">
-            Automate outbound leads, customer support, and appointment scheduling with 24/7 AI voice agents that sound exactly like humans.
+      {/* Hero Section */}
+      <section className="hero-section">
+        <div className="animate-fade-in">
+          <div className="hero-tagline">Intelligent Sales Automation</div>
+          <h1 className="hero-title">AI Sales & Lead<br />Outreach Agent</h1>
+          <p className="hero-subtext">
+            Automate multilingual lead conversations using emotion-aware AI voice agents.
+            Improve customer engagement and conversion with intelligent voice automation.
           </p>
-
-          <div className="hero-actions">
-            <button className="btn-primary btn-lg" onClick={onGetStarted}>
-              Start Building <ArrowRight size={20} />
+          <div className="hero-btns">
+            <button className="lp-btn-primary lp-btn-lg" onClick={onGetStarted}>
+              Get Started
             </button>
-            <button className="btn-outline btn-lg" onClick={onLogin}>
-              Watch Demo
+            <button className="lp-btn-outline lp-btn-lg" onClick={() => {/* demo logic */ }}>
+              Request Demo
             </button>
           </div>
         </div>
 
-        <div className="hero-visual animate-slide">
-          <div className="floating-card glass-effect animate-float">
-            <div className="card-header">
-              <PhoneCall size={18} color="#22d3ee" />
-              <span>Active AI Call</span>
+        <div className="hero-visual animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <div className="analytics-mock">
+            <div className="mock-header">
+              <div>
+                <h3 style={{ margin: 0 }}>System Overview</h3>
+                <p style={{ fontSize: '0.8rem', opacity: 0.5, margin: '4px 0 0' }}>Real-time outreach tracking</p>
+              </div>
+              <Bot size={24} color="#3b82f6" />
             </div>
-            <div className="wave-container">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="wave-bar"></div>
-              ))}
+            <div className="mock-stats-grid">
+              <div className="mock-stat-card">
+                <span>Total Calls</span>
+                <h4>1,284</h4>
+              </div>
+              <div className="mock-stat-card">
+                <span>Hot Leads</span>
+                <h4>342</h4>
+              </div>
+              <div className="mock-stat-card">
+                <span>Conversion</span>
+                <h4>24.8%</h4>
+              </div>
             </div>
-            <div className="card-status">Analyzing Response...</div>
+            <div className="mock-charts">
+              <div className="mock-chart-placeholder">
+                <TrendingUp size={48} />
+              </div>
+              <div className="mock-chart-placeholder">
+                <MessageSquare size={48} />
+              </div>
+            </div>
           </div>
         </div>
-      </main>
-
-      <section className="features-grid">
-        {[
-          {
-            icon: <Bot size={28} />,
-            title: 'Neural Voices',
-            desc: 'Ultra-low latency voices that replicate human emotion and tone perfectly.'
-          },
-          {
-            icon: <ShieldCheck size={28} />,
-            title: 'Enterprise Security',
-            desc: 'Bank-grade encryption for all customer interactions and lead data.'
-          },
-          {
-            icon: <PhoneCall size={28} />,
-            title: 'Instant Scaling',
-            desc: 'Deploy 1,000+ AI agents simultaneously without any hardware setup.'
-          }
-        ].map((feature, index) => (
-          <div key={index} className="feature-card glass-effect animate-fade">
-            <div className="card-icon">{feature.icon}</div>
-            <h3>{feature.title}</h3>
-            <p>{feature.desc}</p>
-          </div>
-        ))}
       </section>
 
-      <footer className="landing-footer">
-        <p>© 2026 AutoConnect AI. All rights reserved.</p>
+      {/* Features Section */}
+      <section id="features" className="features-section">
+        <div className="section-header">
+          <h2>Advanced AI Capabilities</h2>
+          <p>Powerful features tailored for enterprise outreach and scaling.</p>
+        </div>
+        <div className="features-grid">
+          <div className="feature-card">
+            <div className="feature-icon"><Globe size={24} /></div>
+            <h3>Multilingual Voice</h3>
+            <p>Conduct natural, human-like conversations in multiple regional languages with perfect accent and tone.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon"><Bot size={24} /></div>
+            <h3>Emotion Detection</h3>
+            <p>Analyzes sentiment and emotional cues to adjust tone and strategy in real-time during conversations.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon"><TrendingUp size={24} /></div>
+            <h3>AI Lead Scoring</h3>
+            <p>Automatically qualifies and ranks leads based on interaction depth and intent signal metrics.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon"><Database size={24} /></div>
+            <h3>Sheets CRM Sync</h3>
+            <p>Real-time bidirectional synchronization with Google Sheets for seamless lead management.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon"><Calendar size={24} /></div>
+            <h3>Smart Scheduling</h3>
+            <p>Automatically books follow-ups or meetings directly during the AI-driven voice interaction.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon"><ShieldCheck size={24} /></div>
+            <h3>Context Memory</h3>
+            <p>Remembers previous interactions and customer preferences for deeply personalized follow-up calls.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section id="how-it-works" className="how-it-works">
+        <div className="section-header">
+          <h2>How It Works</h2>
+          <p>Three simple steps to automate your entire outreach pipeline.</p>
+        </div>
+        <div className="steps-container">
+          <div className="step-item">
+            <div className="step-number">1</div>
+            <h3>Upload Leads</h3>
+            <p>Import your lead list directly via CSV or our native Google Sheets integration.</p>
+          </div>
+          <div className="step-item">
+            <div className="step-number">2</div>
+            <h3>AI Voice Calls</h3>
+            <p>Our intelligent agents conduct empathic, context-aware conversations at scale.</p>
+          </div>
+          <div className="step-item">
+            <div className="step-number">3</div>
+            <h3>Score & Schedule</h3>
+            <p>Leads are automatically scored and follow-ups are scheduled in your CRM.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Industry Use Cases */}
+      <section id="industries" className="industries-section">
+        <div className="section-header">
+          <h2>Tailored for Your Industry</h2>
+          <p>Trusted across various sectors to handle complex outreach needs.</p>
+        </div>
+        <div className="use-cases-grid">
+          <div className="use-case-card">
+            <div className="feature-icon" style={{ margin: '0 auto 1rem' }}><Briefcase size={20} /></div>
+            <h3>BFSI</h3>
+          </div>
+          <div className="use-case-card">
+            <div className="feature-icon" style={{ margin: '0 auto 1rem' }}><GraduationCap size={20} /></div>
+            <h3>EdTech</h3>
+          </div>
+          <div className="use-case-card">
+            <div className="feature-icon" style={{ margin: '0 auto 1rem' }}><Hospital size={20} /></div>
+            <h3>Healthcare</h3>
+          </div>
+          <div className="use-case-card">
+            <div className="feature-icon" style={{ margin: '0 auto 1rem' }}><Store size={20} /></div>
+            <h3>Retail</h3>
+          </div>
+          <div className="use-case-card">
+            <div className="feature-icon" style={{ margin: '0 auto 1rem' }}><Leaf size={20} /></div>
+            <h3>Agriculture</h3>
+          </div>
+        </div>
+      </section>
+
+      {/* Integration Section */}
+      <section className="integrations-section">
+        <div className="section-header">
+          <h2>Seamless Integrations</h2>
+          <p>Powered by world-class technology partners.</p>
+        </div>
+        <div className="logos-grid">
+          <div className="lp-logo"><Database size={20} /> Firebase</div>
+          <div className="lp-logo"><Bot size={20} /> Gemini AI</div>
+          <div className="lp-logo"><MessageSquare size={20} /> n8n</div>
+          <div className="lp-logo"><Database size={20} /> Google Sheets</div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="lp-footer">
+        <div className="footer-brand">
+          <h2>AutoConnect AI</h2>
+          <p>Empowering businesses with intelligent, emotion-aware voice agents for the next generation of sales and outreach.</p>
+          <div className="social-links">
+            <Twitter className="social-icon" />
+            <Linkedin className="social-icon" />
+            <Github className="social-icon" />
+          </div>
+        </div>
+        <div className="footer-col">
+          <h4>Product</h4>
+          <ul>
+            <li>Features</li>
+            <li>Pricing</li>
+            <li>Integrations</li>
+            <li>Live Demo</li>
+          </ul>
+        </div>
+        <div className="footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li>API Docs</li>
+            <li>Legal</li>
+            <li>Privacy Policy</li>
+            <li>Contact Support</li>
+          </ul>
+        </div>
+        <div className="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li>About Us</li>
+            <li>Careers</li>
+            <li>Contact</li>
+          </ul>
+        </div>
       </footer>
     </div>
   );
 };
 
 export default LandingPage;
-
