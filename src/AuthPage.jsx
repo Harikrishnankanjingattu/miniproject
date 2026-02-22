@@ -7,7 +7,7 @@ import {
   signInWithPopup
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { Smartphone, Mail, Lock, Building2 } from 'lucide-react';
+import { Smartphone, Mail, Lock, Building2, Bot, Globe, TrendingUp, CheckCircle, ArrowRight } from 'lucide-react';
 import './AuthPage.css';
 
 const AuthPage = ({ initialMode = 'login', onGoogleAuth, googleToken }) => {
