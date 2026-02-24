@@ -1,3 +1,4 @@
+# Welcome to Gamma AI
 
 #test link  :- miniprpjectteam16.netlify.app
 # AI Sales & Lead Outreach Agent
@@ -95,3 +96,31 @@ https://docs.google.com/spreadsheets/d/13grgYJ0kitDgeOYxyS-cPdC-Ch9gAa_j/edit?gi
 ## Conclusion
 
 The AI Sales & Lead Outreach Agent provides a scalable, emotionally intelligent, and language-aware solution for modern sales communication. By combining AI-driven voice interaction, sentiment analysis, and secure cloud-based role management, the system improves customer engagement, enhances conversion rates, and significantly reduces operational costs.
+
+---
+
+## How can I edit this code?
+
+There are several ways of editing your application.
+
+**Use your preferred IDE**
+
+If you want to work locally using your own IDE, you can clone this repo and push changes.
+
+The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+
+Follow these steps:
+
+```sh
+# Step 1: Clone the repository using the project's Git URL.
+git clone https://github.com/Harikrishnankanjingattu/MINIPROJECT_TEAM16.git
+
+# Step 2: Navigate to the project directory.
+cd MINIPROJECT_TEAM16
+
+# Step 3: Install the necessary dependencies.
+npm install
+
+# Step 4: Start the development server with auto-reloading and an instant preview.
+npm run dev
+```
